@@ -1,0 +1,9 @@
+nodeapp1:
+  name: nodeapp1
+  image: myregistry-demo.apps.cluster.openshiftapps.com/nodeapp1:latest
+  port: 3000
+
+nodeapp2:
+  name: nodeapp2
+  image: myregistry-demo.apps.cluster.openshiftapps.com/nodeapp2:latest
+  port: 4000
