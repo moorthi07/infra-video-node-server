@@ -1,0 +1,5 @@
+registry:
+  name: myregistry
+  storageSize: 5Gi
+  username: myuser
+  passwordHash: $2y$05$P6rVQ...   # bcrypt hash (use `htpasswd -nbBC 10 myuser mypass`)
