@@ -1,0 +1,4 @@
+apiVersion: v2
+name: registry
+description: Private container registry on OpenShift
+version: 0.1.0
