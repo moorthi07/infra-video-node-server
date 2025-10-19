@@ -1,0 +1,73 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Values.registry.name }}
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: {{ .Values.registry.name }}
+  template:
+    metadata:
+      labels:
+        app: {{ .Values.registry.name }}
+    spec:
+      containers:
+        - name: registry
+          image: registry:2
+          ports:
+            - containerPort: 5000
+          env:
+            - name: REGISTRY_HTTP_ADDR
+              value: ":5000"
+            - name: REGISTRY_STORAGE_FILESYSTEM_ROOTDIRECTORY
+              value: /var/lib/registry
+            - name: REGISTRY_AUTH
+              value: htpasswd
+            - name: REGISTRY_AUTH_HTPASSWD_PATH
+              value: /auth/htpasswd
+            - name: REGISTRY_AUTH_HTPASSWD_REALM
+              value: Registry Realm
+          volumeMounts:
+            - name: data
+              mountPath: /var/lib/registry
+            - name: auth
+              mountPath: /auth
+      volumes:
+        - name: data
+          emptyDir: {}
+        - name: auth
+          secret:
+            secretName: registry-auth
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: registry-auth
+stringData:
+  htpasswd: |
+    {{ .Values.registry.username }}:{{ .Values.registry.passwordHash }}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ .Values.registry.name }}
+spec:
+  ports:
+    - port: 5000
+      targetPort: 5000
+  selector:
+    app: {{ .Values.registry.name }}
+---
+apiVersion: route.openshift.io/v1
+kind: Route
+metadata:
+  name: {{ .Values.registry.name }}
+spec:
+  to:
+    kind: Service
+    name: {{ .Values.registry.name }}
+  port:
+    targetPort: 5000
+  tls:
+    termination: edge
